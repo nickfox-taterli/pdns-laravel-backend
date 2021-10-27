@@ -130,8 +130,8 @@ class DNSController extends Controller
                 array_push($ret, ["qtype" => $qtype, "qname" => $request->qname, "content" => $record->content, $record->ttl]);
             }
             if ($records->count() == 0) {
-                array_push($ret, ["qtype" => 'NS', "qname" => trim($request->qname, '.'), "content" => $this->ns1, 3600]);
-                array_push($ret, ["qtype" => 'NS', "qname" => trim($request->qname, '.'), "content" => $this->ns2, 3600]);
+                array_push($ret, ["qtype" => 'NS', "qname" => $domain, "content" => $this->ns1, 3600]);
+                array_push($ret, ["qtype" => 'NS', "qname" => $domain, "content" => $this->ns2, 3600]);
             }
         }
 
