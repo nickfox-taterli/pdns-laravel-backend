@@ -10,17 +10,19 @@ class DNSController extends Controller
     // 其他记录
     private $qtype = ['A', 'A6', 'AAAA', 'AFSDB', 'ALIAS', 'CAA', 'CDNSKEY', 'CDS', 'CERT', 'CNAME', 'DHCID', 'DLV', 'DNSKEY', 'DNAME', 'DS', 'EUI48', 'EUI64', 'HINFO', 'IPSECKEY', 'KEY', 'KX', 'LUA', 'LOC', 'MAILA', 'MAILB', 'MINFO', 'MR', 'MX', 'NAPTR', 'NS', 'NSEC', 'NSEC3', 'NSEC3PARAM', 'OPENPGPKEY', 'OPT', 'RKEY', 'RP', 'RRSIG', 'SIG', 'SPF', 'SRV', 'SSHFP', 'TLSA', 'TKEY', 'TSIG', 'TXT', 'WKS', 'URI'];
     // RNDS域名
-    private $suffix = 'taterli.com';
+    private $suffix = 'defense.gov';
     // DNS服务器域名
     private $ns1 = 'ns1.taterli.com';
     private $ns2 = 'ns2.taterli.com';
+    // Hostmaster域名
+    private $hm = 'hostmaster.taterli.com';
 
     public function lookup(Request $request)
     {
         $ret = array();
 
         if (strcmp($request->qtype, "SOA") == 0) {
-            return response()->json(["result" => [["qtype" => $request->qtype, "qname" => $request->qname, "content" => "ns.taterli.com hostmaster.taterli.com 2021092900 28800 7200 604800 86400", "ttl" => 86400]]]);
+            return response()->json(["result" => [["qtype" => $request->qtype, "qname" => $request->qname, "content" => $this->ns1." ".$this->hm." 2021092900 28800 7200 604800 86400", "ttl" => 86400]]]);
         }
 
         if (strcmp($request->qtype, "PTR") == 0 || strcmp($request->qtype, "ANY") == 0) {
@@ -69,7 +71,7 @@ class DNSController extends Controller
                 // 如果找不到就编一个
                 if ($records->count() == 0) {
                     $ip = $request->qname;
-                    $ip = str_replace('.ipv4.taterli.com.', '', $ip);
+                    $ip = str_replace('.ipv4.'.$this->suffix.'.', '', $ip);
                     $ip = str_replace('-', '.', $ip);
                     array_push($ret, ["qtype" => 'A', "qname" => $request->qname, "content" => $ip, 30]);
                 }
@@ -86,7 +88,7 @@ class DNSController extends Controller
                 // 如果找不到就编一个
                 if ($records->count() == 0) {
                     $ip = $request->qname;
-                    $ip = str_replace('.ipv6.taterli.com.', '', $ip);
+                    $ip = str_replace('.ipv6.'.$this->suffix.'.', '', $ip);
                     $ip = str_replace('-', ':', $ip);
                     array_push($ret, ["qtype" => 'AAAA', "qname" => $request->qname, "content" => $ip, 30]);
                 }
@@ -186,7 +188,6 @@ class DNSController extends Controller
                 }
             }
         }
-
         return response()->json(["result" => $ret]);
     }
 
